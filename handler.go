@@ -7,6 +7,8 @@ import (
 func HandlerTLS() http.Handler {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", def)
+	//mux.HandleFunc("/user/login", login)
+	mux.HandleFunc("/user/signup", signUp)
 
 	return mux
 }
@@ -22,19 +24,47 @@ func Handler() http.Handler {
 
 func def(w http.ResponseWriter, r *http.Request) {
 
-	if r.URL.Path != "/" {
-		infoLog.Println("404 not found")
-		http.Error(w, "404 not found", 404)
+	infoLog.Printf("path %v not accepted\n", r.URL.Path)
+	http.Error(w, "404 not found", 404)
+	return
+
+}
+
+func signUp(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "POST" {
+		infoLog.Printf("method %v not accepted", r.Method)
+		http.Error(w, "400 bad request", 400)
 		return
 	}
 
-	html, err := GetHTML("index.html")
+	u, err := GetUser(r.Body)
 	if err != nil {
-		infoLog.Println("500 internal server error")
+		infoLog.Println(err)
+		http.Error(w, "400 bad request", 400)
+		return
+	}
+
+	exist, err := IsUserExist(u)
+	if err != nil {
+		infoLog.Println(err)
 		http.Error(w, "500 internal server error", 500)
 		return
 	}
 
-	w.WriteHeader(200)
-	w.Write(html)
+	if exist {
+		infoLog.Println("the user with a name %v already exists")
+		http.Error(w, "409 conflict", 409)
+		return
+	}
+
+	err = AddUser(u)
+	if err != nil {
+		infoLog.Println(err)
+		http.Error(w, "500 internal server error", 409)
+		return
+	}
+
+	infoLog.Printf("user with name %v has registered\n", u.Name)
+	http.Error(w, "201 created", 201)
+	return
 }

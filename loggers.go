@@ -5,7 +5,7 @@ import (
 	"os"
 )
 
-var infoLog = log.New(logFile("info.txt"), "INFO\t", log.Ldate|log.Ltime)
+var infoLog = log.New(logFile("info.txt"), "INFO\t", log.Ldate|log.Ltime|log.Lshortfile)
 
 var errorLog = log.New(logFile("errors.txt"), "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
 
