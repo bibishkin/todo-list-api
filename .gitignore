@@ -1,5 +1,2 @@
 .idea
-errors.txt
-info.txt
-cert.cer
-pkey.pkey
+.env
