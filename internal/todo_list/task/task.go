@@ -2,19 +2,20 @@ package task
 
 import (
 	"context"
+	"encoding/json"
 	"github.com/jackc/pgx/v4/pgxpool"
 	"time"
 	"todo-list-api/config"
 )
 
 type Task struct {
-	ID        int
-	UserID    int
-	Name      string
-	Body      string
-	IsDone    bool
-	CreatedAt *time.Time
-	Deadline  *time.Time
+	ID        int        `json:"id"`
+	UserID    int        `json:"user_id"`
+	Name      string     `json:"name"`
+	Body      string     `json:"body"`
+	IsDone    bool       `json:"is_done"`
+	CreatedAt *time.Time `json:"created_at"`
+	Deadline  *time.Time `json:"deadline"`
 }
 
 func GetTaskByID(ctx context.Context, pool *pgxpool.Pool, id int) (*Task, error) {
@@ -39,4 +40,13 @@ func GetTaskByID(ctx context.Context, pool *pgxpool.Pool, id int) (*Task, error)
 		CreatedAt: &createdAt,
 		Deadline:  &deadline,
 	}, nil
+}
+
+func (t *Task) Marshal() ([]byte, error) {
+	b, err := json.Marshal(t)
+	if err != nil {
+		return nil, err
+	}
+
+	return b, nil
 }

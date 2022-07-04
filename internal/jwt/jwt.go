@@ -28,3 +28,7 @@ func Parse(token string) (*jwt.Token, error) {
 
 	return t, err
 }
+
+func ParseClaims(token *jwt.Token) map[string]interface{} {
+	return token.Claims.(jwt.MapClaims)
+}

@@ -45,7 +45,7 @@ func SignIn(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.SetCookie(w, &http.Cookie{Name: "jwt", Value: token})
-	w.WriteHeader(201)
+	w.WriteHeader(200)
 	return
 }
 
@@ -78,7 +78,6 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(201)
-	w.Write([]byte("201 created"))
 	return
 }
 

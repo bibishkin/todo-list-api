@@ -8,7 +8,7 @@ import (
 )
 
 func Get(w http.ResponseWriter, r *http.Request) {
-	err := jwt.Auth(w, r)
+	_, err := jwt.Auth(w, r)
 	if err != nil {
 		return
 	}

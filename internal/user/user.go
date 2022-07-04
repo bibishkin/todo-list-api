@@ -8,8 +8,8 @@ import (
 )
 
 type User struct {
-	ID       int    `json:"ID"`
-	Email    string `json:"Email"`
+	ID       int    `json:"id"`
+	Email    string `json:"email"`
 	Password string `json:"password"`
 }
 
