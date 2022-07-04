@@ -52,8 +52,10 @@ func GetUserByID(ctx context.Context, pool *pgxpool.Pool, id int) (*User, error)
 
 func GetUserByEmail(ctx context.Context, pool *pgxpool.Pool, email string) (*User, error) {
 	row := pool.QueryRow(ctx, "SELECT * FROM "+config.DBUser.Table+" WHERE "+config.DBUser.Email+"= $1;", email)
-	var id int
-	var password string
+	var (
+		id       int
+		password string
+	)
 	err := row.Scan(&id, &email, &password)
 
 	if err != nil {
