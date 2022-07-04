@@ -3,22 +3,20 @@ package user
 import (
 	"context"
 	"github.com/jackc/pgx/v4"
-	"io"
 	"net/http"
-	"todo-list-api/config"
 	"todo-list-api/internal/jwt"
 	"todo-list-api/pkg/logger"
 )
 
 func SignIn(w http.ResponseWriter, r *http.Request) {
-	u, err := parseUser(r)
+	u, err := ParseUser(r)
 	if err != nil {
 		logger.InfoLog.Println(err)
 		http.Error(w, "bad request", 400)
 		return
 	}
 
-	u2, err := GetUserByEmail(context.Background(), config.DBPool, u.Email)
+	u2, err := GetUserByEmail(context.Background(), u.Email)
 	if err == pgx.ErrNoRows {
 		logger.InfoLog.Println(err)
 		http.Error(w, "user doesn't exist", 404)
@@ -50,14 +48,14 @@ func SignIn(w http.ResponseWriter, r *http.Request) {
 }
 
 func SignUp(w http.ResponseWriter, r *http.Request) {
-	u, err := parseUser(r)
+	u, err := ParseUser(r)
 	if err != nil {
 		logger.InfoLog.Println(err)
 		http.Error(w, "bad request", 400)
 		return
 	}
 
-	_, err = GetUserByEmail(context.Background(), config.DBPool, u.Email)
+	_, err = GetUserByEmail(context.Background(), u.Email)
 
 	if err != pgx.ErrNoRows {
 		if err == nil {
@@ -70,7 +68,7 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = InsertUser(context.Background(), config.DBPool, u)
+	err = InsertUser(context.Background(), u)
 	if err != nil {
 		logger.InfoLog.Println(err)
 		http.Error(w, "internal server error", 500)
@@ -79,16 +77,4 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(201)
 	return
-}
-
-func parseUser(r *http.Request) (*User, error) {
-	body, err := io.ReadAll(r.Body)
-	if err != nil {
-		return nil, err
-	}
-	u, err := Unmarshal(body)
-	if err != nil {
-		return nil, err
-	}
-	return u, nil
 }

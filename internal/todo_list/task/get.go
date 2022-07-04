@@ -7,7 +7,7 @@ import (
 
 func Get(w http.ResponseWriter, r *http.Request) {
 
-	task, err := Auth(w, r)
+	task, err := AccessTask(w, r)
 	if err != nil {
 		return
 	}

@@ -29,8 +29,8 @@ type dbTask struct {
 	Table     string
 	ID        string
 	UserID    string
-	TaskName  string
-	TaskBody  string
+	Name      string
+	Body      string
 	IsDone    string
 	CreatedAt string
 	Deadline  string
@@ -66,8 +66,8 @@ func Init() {
 		Table:     "todo_list",
 		ID:        "id",
 		UserID:    "user_id",
-		TaskName:  "task_name",
-		TaskBody:  "task_body",
+		Name:      "task_name",
+		Body:      "task_body",
 		IsDone:    "is_done",
 		CreatedAt: "created_at",
 		Deadline:  "deadline",

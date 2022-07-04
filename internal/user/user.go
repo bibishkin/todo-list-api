@@ -3,8 +3,10 @@ package user
 import (
 	"context"
 	"encoding/json"
-	"github.com/jackc/pgx/v4/pgxpool"
-	"todo-list-api/config"
+	"fmt"
+	"io"
+	"net/http"
+	. "todo-list-api/config"
 )
 
 type User struct {
@@ -20,10 +22,10 @@ func New(email, password string) *User {
 	}
 }
 
-func InsertUser(ctx context.Context, pool *pgxpool.Pool, u *User) error {
-	_, err := pool.Exec(
+func InsertUser(ctx context.Context, u *User) error {
+	_, err := DBPool.Exec(
 		ctx,
-		"INSERT INTO "+config.DBUser.Table+"("+config.DBUser.Email+","+config.DBUser.Password+")"+" VALUES ($1, $2);",
+		fmt.Sprintf("INSERT INTO %s (%s, %s) VALUES ($1, $2);", DBUser.Table, DBUser.Email, DBUser.Password),
 		u.Email,
 		u.Password,
 	)
@@ -33,9 +35,9 @@ func InsertUser(ctx context.Context, pool *pgxpool.Pool, u *User) error {
 	return nil
 }
 
-func GetUserByID(ctx context.Context, pool *pgxpool.Pool, id int) (*User, error) {
+func GetUserByID(ctx context.Context, id int) (*User, error) {
 
-	row := pool.QueryRow(ctx, "SELECT * FROM "+config.DBUser.Table+" WHERE "+config.DBUser.ID+"= $1;", id)
+	row := DBPool.QueryRow(ctx, fmt.Sprintf("SELECT * FROM %s WHERE %s = $1;", DBUser.Table, DBUser.ID))
 	var email, password string
 	err := row.Scan(&id, &email, &password)
 
@@ -50,8 +52,8 @@ func GetUserByID(ctx context.Context, pool *pgxpool.Pool, id int) (*User, error)
 	}, nil
 }
 
-func GetUserByEmail(ctx context.Context, pool *pgxpool.Pool, email string) (*User, error) {
-	row := pool.QueryRow(ctx, "SELECT * FROM "+config.DBUser.Table+" WHERE "+config.DBUser.Email+"= $1;", email)
+func GetUserByEmail(ctx context.Context, email string) (*User, error) {
+	row := DBPool.QueryRow(ctx, fmt.Sprintf("SELECT * FROM %s WHERE %s = $1;", DBUser.Table, DBUser.Email), email)
 	var (
 		id       int
 		password string
@@ -85,4 +87,16 @@ func Unmarshal(b []byte) (*User, error) {
 		return nil, err
 	}
 	return &u, nil
+}
+
+func ParseUser(r *http.Request) (*User, error) {
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		return nil, err
+	}
+	u, err := Unmarshal(body)
+	if err != nil {
+		return nil, err
+	}
+	return u, nil
 }
